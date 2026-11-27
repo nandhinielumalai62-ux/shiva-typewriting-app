@@ -1,0 +1,393 @@
+/* Shiva Commercial Institute - Bold Screen & 14px Paragraph Theme */
+:root {
+  --sci-navy: #0b1f3a;
+  --sci-navy-dark: #071426;
+  --sci-blue: #1d4ed8;
+  --sci-accent: #f59e0b;
+  --sci-bg: #eef2f7;
+  --sci-surface: #ffffff;
+  --sci-border: #cbd5e1;
+  --sci-text: #0f172a;
+  --sci-muted: #475569;
+}
+
+body {
+  background-color: var(--sci-bg);
+  color: var(--sci-text);
+  font-family: "Segoe UI", "Noto Sans Tamil", "Latha", "Vijaya", system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+/* Explicit 14px paragraph font size & 20px practice words font size */
+p,
+.passage-paragraph {
+  font-size: 14px !important;
+  line-height: 1.85;
+}
+
+#sampleText,
+#typingInput {
+  font-size: 20px !important;
+  line-height: 1.85;
+}
+
+/* Bold High-Contrast Navbar */
+.sci-navbar {
+  background: linear-gradient(90deg, var(--sci-navy-dark) 0%, var(--sci-navy) 65%, #163a6b 100%);
+  border-bottom: 4px solid var(--sci-accent);
+  box-shadow: 0 4px 16px rgba(7, 20, 38, 0.28);
+}
+
+.sci-navbar .navbar-brand {
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  font-size: 1.15rem;
+}
+
+.sci-navbar .nav-link {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88) !important;
+  padding: 0.55rem 0.9rem !important;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sci-navbar .nav-link:hover,
+.sci-navbar .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.14);
+  color: #ffffff !important;
+}
+
+/* Bold Screen Cards & KPIs */
+.bold-card {
+  background: var(--sci-surface);
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+}
+
+.bold-card-header {
+  background: var(--sci-navy);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.85rem 1.2rem;
+  border-bottom: 3px solid var(--sci-accent);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.kpi-box {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-left: 6px solid var(--sci-blue);
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.kpi-box.kpi-warn {
+  border-left-color: #d97706;
+}
+
+.kpi-box.kpi-danger {
+  border-left-color: #dc2626;
+}
+
+.kpi-box.kpi-success {
+  border-left-color: #16a34a;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--sci-navy);
+}
+
+.kpi-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sci-muted);
+}
+
+/* Bold Full-Focus Typing Practice Screen */
+.practice-bold-shell {
+  background: #0b1f3a;
+  border-radius: 14px;
+  padding: 1.25rem;
+  border: 3px solid #1e3a8a;
+  box-shadow: 0 12px 32px rgba(11, 31, 58, 0.25);
+  color: #ffffff;
+}
+
+.practice-stat-pill {
+  background: #132d52;
+  border: 2px solid #2b4d82;
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  text-align: center;
+}
+
+.practice-stat-pill .stat-num {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.practice-stat-pill .stat-num.timer-urgent {
+  color: #fca5a5;
+  animation: pulseWarn 1s infinite;
+}
+
+@keyframes pulseWarn {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.practice-stat-pill .stat-lbl {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #cbd5e1;
+}
+
+.sample-box {
+  background: #ffffff;
+  color: #0f172a;
+  border: 3px solid #f59e0b;
+  border-radius: 10px;
+  padding: 1.15rem 1.25rem;
+  min-height: 185px;
+  max-height: 290px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: "Noto Sans Tamil", "Segoe UI", "Latha", monospace, sans-serif;
+  font-size: 20px !important;
+  font-weight: 600;
+  user-select: none;
+}
+
+.char-correct {
+  color: #15803d;
+  background-color: #dcfce7;
+  border-radius: 2px;
+}
+
+.char-wrong {
+  color: #b91c1c;
+  background-color: #fee2e2;
+  text-decoration: underline wavy #dc2626;
+  border-radius: 2px;
+}
+
+.char-current {
+  background-color: #fde047;
+  color: #0f172a;
+  border-bottom: 2px solid #0b1f3a;
+}
+
+#typingInput {
+  background: #ffffff;
+  color: #0f172a;
+  border: 3px solid #38bdf8;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  font-family: "Noto Sans Tamil", "Segoe UI", "Latha", monospace, sans-serif;
+  font-size: 20px !important;
+  font-weight: 600;
+  resize: vertical;
+}
+
+#typingInput:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25);
+}
+
+/* On-Screen English / Tamil Keyboard */
+.keyboard-shell {
+  background: #0f294a;
+  border: 2px solid #2b4d82;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.kb-row {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.kb-row:last-child {
+  margin-bottom: 0;
+}
+
+.kb-key {
+  min-width: 44px;
+  height: 48px;
+  padding: 3px 6px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 2px solid #94a3b8;
+  border-bottom: 4px solid #64748b;
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, background-color 0.12s ease;
+  position: relative;
+}
+
+.kb-key:hover {
+  background: #f1f5f9;
+}
+
+.kb-key:active,
+.kb-key.key-pressed {
+  transform: translateY(2px);
+  background: #38bdf8 !important;
+  color: #071426 !important;
+  border-color: #0284c7 !important;
+}
+
+.kb-key.key-home {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.kb-key.key-next {
+  background: #f59e0b !important;
+  color: #071426 !important;
+  border-color: #b45309 !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.75);
+}
+
+.kb-key-main {
+  font-size: 1rem;
+  line-height: 1.1;
+  font-family: "Noto Sans Tamil", "Segoe UI", "Latha", sans-serif;
+}
+
+.kb-key-sub {
+  font-size: 0.65rem;
+  color: #64748b;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.kb-key.key-next .kb-key-sub {
+  color: #071426;
+}
+
+.kb-key-wide {
+  min-width: 78px;
+  font-size: 0.78rem;
+}
+
+.kb-key-shift {
+  min-width: 96px;
+  font-size: 0.78rem;
+}
+
+.kb-key-space {
+  min-width: 280px;
+  max-width: 420px;
+  flex: 1 1 280px;
+}
+
+@media (max-width: 768px) {
+  .kb-key {
+    min-width: 28px;
+    height: 40px;
+    padding: 2px 3px;
+  }
+  .kb-key-main {
+    font-size: 0.85rem;
+  }
+  .kb-key-space {
+    min-width: 140px;
+  }
+}
+
+/* Admission Form Styling */
+.admission-sheet {
+  background: #ffffff;
+  border: 2px solid #0b1f3a;
+  border-radius: 10px;
+  padding: 1.75rem;
+}
+
+.admission-sheet-header {
+  border-bottom: 3px double #0b1f3a;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-heading {
+  background: #e2e8f0;
+  color: #0b1f3a;
+  font-weight: 800;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.45rem 0.85rem;
+  border-left: 5px solid #0b1f3a;
+  margin-bottom: 1rem;
+}
+
+.photo-preview-box {
+  width: 120px;
+  height: 140px;
+  border: 2px dashed #64748b;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.photo-preview-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Login Screen */
+.login-hero {
+  background: linear-gradient(135deg, #071426 0%, #0b1f3a 55%, #1d4ed8 100%);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 2rem;
+  border: 3px solid #f59e0b;
+}
+
+.login-card {
+  border: 2px solid #0b1f3a;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
+}
+
+@media print {
+  .no-print,
+  .sci-navbar,
+  footer {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+  }
+  .admission-sheet {
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
+  }
+}

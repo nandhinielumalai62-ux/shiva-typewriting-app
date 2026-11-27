@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Monthly Fees &amp; Intimation — {{ institute_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="kpi-box kpi-success">
+        <div class="kpi-label">Paid Students ({{ filter_month }})</div>
+        <div class="kpi-value">{{ summary.Paid }}</div>
+        <div class="small text-muted">Collected: Rs. {{ "%.0f"|format(summary.collected_amt) }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-box kpi-warn">
+        <div class="kpi-label">Pending Intimation</div>
+        <div class="kpi-value">{{ summary.Pending }}</div>
+        <div class="small text-muted">Within due date</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-box kpi-danger">
+        <div class="kpi-label">Overdue (Login Blocked)</div>
+        <div class="kpi-value">{{ summary.Overdue }}</div>
+        <div class="small text-muted">Total Due: Rs. {{ "%.0f"|format(summary.due_amt) }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="bold-card p-3 h-100 d-flex flex-column justify-content-center">
+        <form method="GET" class="row g-2">
+          <div class="col-7">
+            <label class="form-label fw-bold small mb-1">Month</label>
+            <input type="month" name="month" value="{{ filter_month }}" class="form-control border-2">
+          </div>
+          <div class="col-5">
+            <label class="form-label fw-bold small mb-1">Status</label>
+            <select name="status" class="form-select border-2">
+              <option value="">All</option>
+              <option value="Overdue" {% if filter_status=='Overdue' %}selected{% endif %}>Overdue</option>
+              <option value="Pending" {% if filter_status=='Pending' %}selected{% endif %}>Pending</option>
+              <option value="Paid" {% if filter_status=='Paid' %}selected{% endif %}>Paid</option>
+            </select>
+          </div>
+          <div class="col-12 d-grid">
+            <button type="submit" class="btn btn-dark btn-sm fw-bold">Load Billing Month</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="bold-card">
+    <div class="bold-card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-cash-coin me-2"></i> Monthly Fee Intimation &amp; Login Access Control ({{ filter_month }})</span>
+      <span class="badge bg-warning text-dark">Overdue automatically blocks student login</span>
+    </div>
+    <div class="card-body p-4">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>Student ID</th>
+              <th>Name &amp; Phone</th>
+              <th>Course</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Intimation / Collect Fee</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in fee_rows %}
+              <tr class="{% if f.status == 'Overdue' %}table-danger{% endif %}">
+                <td><span class="badge bg-primary fs-6">{{ f.student_code }}</span></td>
+                <td>
+                  <div class="fw-bold">{{ f.full_name }}</div>
+                  <div class="small text-muted">{{ f.phone }}</div>
+                </td>
+                <td>{{ f.course_category }}</td>
+                <td class="fw-bold">Rs. {{ "%.2f"|format(f.amount) }}</td>
+                <td>
+                  {% if f.status != 'Paid' %}
+                    <form method="POST" action="{{ url_for('admin_fee_due_date', fee_id=f.id) }}" class="d-flex gap-1">
+                      <input type="hidden" name="billing_month" value="{{ filter_month }}">
+                      <input type="date" name="due_date" value="{{ f.due_date }}" class="form-control form-control-sm">
+                      <button type="submit" class="btn btn-sm btn-outline-dark fw-bold">Set</button>
+                    </form>
+                  {% else %}
+                    {{ f.due_date }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if f.status == 'Paid' %}
+                    <span class="badge bg-success">Paid ({{ f.paid_date }})</span>
+                    <div class="small text-muted">{{ f.receipt_no }}</div>
+                  {% elif f.status == 'Overdue' %}
+                    <span class="badge bg-danger">Delayed — Login Blocked</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">Pending Intimation</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if f.status != 'Paid' %}
+                    <div class="d-flex flex-wrap gap-1">
+                      <form method="POST" action="{{ url_for('admin_fee_pay', fee_id=f.id) }}" class="d-flex gap-1">
+                        <input type="hidden" name="billing_month" value="{{ filter_month }}">
+                        <select name="payment_mode" class="form-select form-select-sm" style="width: 100px;">
+                          <option value="Cash">Cash</option>
+                          <option value="UPI">UPI</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-success fw-bold">Mark Paid</button>
+                      </form>
+                      <button type="button" class="btn btn-sm btn-outline-primary fw-bold"
+                              onclick="copyIntimationMessage('Shiva Commercial Institute Fee Intimation: Dear {{ f.full_name }} ({{ f.student_code }}), your monthly fee Rs. {{ "%.0f"|format(f.amount) }} for {{ f.billing_month }} is due on {{ f.due_date }}. Please pay promptly to keep your practice login active.')">
+                        Copy Intimation
+                      </button>
+                    </div>
+                  {% else %}
+                    <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Cleared</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% else %}
+              <tr><td colspan="7" class="text-center text-muted py-4">No fee rows for this month/filter.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

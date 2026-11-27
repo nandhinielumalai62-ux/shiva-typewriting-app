@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Monthly Fee Intimation — {{ institute_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="bold-card">
+    <div class="bold-card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-receipt-cutoff me-2"></i> Monthly Fee Intimation &amp; Payment History</span>
+      <span class="badge bg-warning text-dark">Monthly Fee: Rs. {{ "%.2f"|format(student.monthly_fee) }}</span>
+    </div>
+    <div class="card-body p-4">
+      <p class="text-muted">
+        Monthly tuition is due on the <strong>{{ student.fee_due_day }}th</strong> of every month.
+        Delayed payment past the due date automatically blocks practice login until paid at the institute office.
+      </p>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>Billing Month</th>
+              <th>Amount (Rs.)</th>
+              <th>Due Date</th>
+              <th>Paid Date</th>
+              <th>Receipt No.</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in fees %}
+              <tr>
+                <td class="fw-bold">{{ f.billing_month }}</td>
+                <td>Rs. {{ "%.2f"|format(f.amount) }}</td>
+                <td>{{ f.due_date }}</td>
+                <td>{{ f.paid_date or '-' }}</td>
+                <td>{{ f.receipt_no or '-' }}</td>
+                <td>
+                  {% if f.status == 'Paid' %}
+                    <span class="badge bg-success">Paid</span>
+                  {% elif f.status == 'Overdue' %}
+                    <span class="badge bg-danger">Overdue (Login Blocked)</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">Pending Intimation</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% else %}
+              <tr><td colspan="6" class="text-center text-muted py-4">No fee records found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

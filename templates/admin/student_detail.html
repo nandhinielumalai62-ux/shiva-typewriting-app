@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ student.student_code }} — {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 980px;">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 no-print gap-2">
+    <a href="{{ url_for('admin_students') }}" class="btn btn-outline-dark fw-bold">
+      <i class="bi bi-arrow-left me-1"></i> Back to Students
+    </a>
+    <div class="d-flex gap-2">
+      <button onclick="window.print()" class="btn btn-dark fw-bold">
+        <i class="bi bi-printer-fill me-1"></i> Print Admission Form
+      </button>
+      <a href="{{ url_for('admin_student_edit', student_id=student.id) }}" class="btn btn-primary fw-bold">
+        <i class="bi bi-pencil-square me-1"></i> Edit Details
+      </a>
+      <form method="POST" action="{{ url_for('admin_student_delete', student_id=student.id) }}"
+            onsubmit="return confirm('Permanently delete wrong admission entry {{ student.student_code }} ({{ student.full_name }})?');">
+        <button type="submit" class="btn btn-danger fw-bold">
+          <i class="bi bi-trash-fill me-1"></i> Delete Wrong Entry
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Printable Admission Form Sheet -->
+  <div class="admission-sheet mb-4">
+    <div class="admission-sheet-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="fw-bold text-uppercase text-primary mb-1">{{ institute_name }}</h3>
+        <p class="mb-0 fw-semibold">{{ institute_subtitle }} — ADMISSION RECORD</p>
+      </div>
+      <div class="text-end">
+        <div class="badge bg-primary fs-5 px-3 py-2">{{ student.student_code }}</div>
+        <div class="small text-muted mt-1">Admitted: {{ student.admission_date }}</div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-9">
+        <table class="table table-bordered mb-0">
+          <tbody>
+            <tr><th style="width: 32%;">Candidate Name</th><td class="fw-bold">{{ student.full_name }}</td></tr>
+            <tr><th>Father / Guardian</th><td>{{ student.father_guardian_name }} ({{ student.guardian_occupation or '-' }})</td></tr>
+            <tr><th>Gender / DOB</th><td>{{ student.gender }} | {{ student.dob }}</td></tr>
+            <tr><th>Qualification</th><td>{{ student.qualification }} — {{ student.school_college or '-' }}</td></tr>
+            <tr><th>Mobile / Parent</th><td>{{ student.phone }} / {{ student.alt_phone or '-' }}</td></tr>
+            <tr><th>Address</th><td>{{ student.address }} {{ student.city }} {{ student.pincode }}</td></tr>
+            <tr><th>Course Category</th><td class="fw-bold text-primary">{{ student.course_category }}</td></tr>
+            <tr><th>Batch &amp; Machine No.</th><td>{{ student.batch_timing }} | Machine: {{ student.machine_no or '-' }}</td></tr>
+            <tr><th>Fee Plan</th><td>Admission: Rs. {{ "%.2f"|format(student.admission_fee) }} | Monthly: Rs. {{ "%.2f"|format(student.monthly_fee) }} (Due {{ student.fee_due_day }}th)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-3 d-flex flex-column align-items-center">
+        <div class="photo-preview-box mb-2">
+          {% if student.photo_filename %}
+            <img src="{{ url_for('static', filename='uploads/photos/' + student.photo_filename) }}" alt="Student Photo">
+          {% else %}
+            <span class="text-muted small">No Photo</span>
+          {% endif %}
+        </div>
+        <span class="badge {% if fee_status.is_blocked %}bg-danger{% else %}bg-success{% endif %} px-3 py-2">
+          {% if fee_status.is_blocked %}Login Blocked (Fee Due){% else %}Login Active{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fees & Practice Summary (non-print optional) -->
+  <div class="row g-4 no-print">
+    <div class="col-md-6">
+      <div class="bold-card h-100">
+        <div class="bold-card-header">Fee Payment Ledger</div>
+        <div class="card-body p-3">
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="table-dark">
+              <tr><th>Month</th><th>Amount</th><th>Due</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {% for f in fees %}
+                <tr>
+                  <td>{{ f.billing_month }}</td>
+                  <td>Rs. {{ "%.0f"|format(f.amount) }}</td>
+                  <td>{{ f.due_date }}</td>
+                  <td><span class="badge {% if f.status=='Paid' %}bg-success{% elif f.status=='Overdue' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ f.status }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="bold-card h-100">
+        <div class="bold-card-header">Recent Practice Performance</div>
+        <div class="card-body p-3">
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="table-dark">
+              <tr><th>Category</th><th>Session</th><th>WPM</th><th>Acc</th></tr>
+            </thead>
+            <tbody>
+              {% for ps in sessions %}
+                <tr>
+                  <td>{{ ps.category }}</td>
+                  <td>Practice {{ ps.practice_number }}</td>
+                  <td>{{ ps.wpm }}</td>
+                  <td>{{ ps.accuracy_pct }}%</td>
+                </tr>
+              {% else %}
+                <tr><td colspan="4" class="text-center text-muted">No practice sessions yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}Admission Form — {{ institute_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 980px;">
+  <div class="admission-sheet shadow-sm">
+    <div class="admission-sheet-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <h2 class="fw-bold text-uppercase mb-1 text-primary">{{ institute_name }}</h2>
+        <p class="mb-0 fw-semibold text-muted">{{ institute_subtitle }} — APPLICATION FOR ADMISSION</p>
+      </div>
+      <div class="text-end">
+        <div class="badge bg-dark fs-6 px-3 py-2">Next Auto Student ID: {{ next_code }}</div>
+        <div class="small text-muted mt-1">Assigned automatically in sequential order</div>
+      </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+      <!-- Section 1: Candidate Personal & Photo Details -->
+      <div class="section-heading">1. Candidate Personal Details</div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-9">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Candidate Full Name (in BLOCK Letters) *</label>
+              <input type="text" name="full_name" class="form-control border-2" required
+                     value="{{ form_data.get('full_name', '') }}" placeholder="e.g. K. PRIYA">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Gender *</label>
+              <select name="gender" class="form-select border-2" required>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Date of Birth *</label>
+              <input type="date" name="dob" class="form-control border-2" required value="{{ form_data.get('dob', '') }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Father's / Mother's / Guardian's Name *</label>
+              <input type="text" name="father_guardian_name" class="form-control border-2" required
+                     value="{{ form_data.get('father_guardian_name', '') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Parent / Guardian Occupation</label>
+              <input type="text" name="guardian_occupation" class="form-control border-2"
+                     value="{{ form_data.get('guardian_occupation', '') }}">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Educational Qualification *</label>
+              <input type="text" name="qualification" class="form-control border-2" required
+                     value="{{ form_data.get('qualification', '10th / 12th / Degree') }}" placeholder="e.g. B.Com / +2 / SSLC">
+            </div>
+            <div class="col-md-5">
+              <label class="form-label fw-bold">School / College Name</label>
+              <input type="text" name="school_college" class="form-control border-2"
+                     value="{{ form_data.get('school_college', '') }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Aadhaar / ID No.</label>
+              <input type="text" name="aadhaar_no" class="form-control border-2"
+                     value="{{ form_data.get('aadhaar_no', '') }}" placeholder="Optional">
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 d-flex flex-column align-items-center justify-content-start">
+          <div class="photo-preview-box mb-2" id="photoPreviewBox">
+            <span class="text-muted small text-center px-2">Passport Photo</span>
+          </div>
+          <input type="hidden" name="captured_photo_data" id="capturedPhotoData">
+          <input type="file" name="photo" id="photoFileInput" accept="image/*" class="form-control form-control-sm border-2 mb-2"
+                 onchange="previewAdmissionPhoto(this)">
+          <button type="button" class="btn btn-dark btn-sm w-100 fw-bold mb-1" onclick="openAdmissionCamera()">
+            <i class="bi bi-camera-video-fill me-1"></i> Live Camera
+          </button>
+          <div id="cameraStatusText" class="small text-muted text-center">Upload file or use Live Camera</div>
+
+          <div id="liveCameraContainer" class="d-none mt-2 w-100 border border-2 border-primary rounded p-2 bg-light text-center">
+            <video id="cameraVideo" autoplay playsinline class="w-100 rounded mb-2" style="max-height: 150px; object-fit: cover;"></video>
+            <canvas id="cameraCanvas" class="d-none"></canvas>
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-success btn-sm flex-grow-1 fw-bold" onclick="captureAdmissionPhoto()">
+                <i class="bi bi-camera-fill me-1"></i> Capture
+              </button>
+              <button type="button" class="btn btn-outline-danger btn-sm fw-bold" onclick="stopAdmissionCamera()">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Contact & Address Details -->
+      <div class="section-heading">2. Contact &amp; Residential Address</div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Student Mobile Number *</label>
+          <input type="text" name="phone" class="form-control border-2" required value="{{ form_data.get('phone', '') }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Parent / Alternate Mobile</label>
+          <input type="text" name="alt_phone" class="form-control border-2" value="{{ form_data.get('alt_phone', '') }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Email ID</label>
+          <input type="email" name="email" class="form-control border-2" value="{{ form_data.get('email', '') }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Residential Address *</label>
+          <textarea name="address" class="form-control border-2" rows="2" required>{{ form_data.get('address', '') }}</textarea>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">City / Town</label>
+          <input type="text" name="city" class="form-control border-2" value="{{ form_data.get('city', '') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Pincode</label>
+          <input type="text" name="pincode" class="form-control border-2" value="{{ form_data.get('pincode', '') }}">
+        </div>
+      </div>
+
+      <!-- Section 3: Course, Batch & Fee Setup -->
+      <div class="section-heading">3. Course Enrollment, Batch &amp; Monthly Fee Configuration</div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Course / Grade Category *</label>
+          <select name="course_category" class="form-select border-2 fw-bold" required>
+            {% for cat in course_categories %}
+              <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Class Timing (7:00 AM to 7:00 PM) *</label>
+          <select name="batch_timing" class="form-select border-2 fw-bold" required>
+            {% for b in batch_timings %}
+              <option value="{{ b }}">{{ b }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-bold">Machine / Seat No.</label>
+          <input type="text" name="machine_no" class="form-control border-2" placeholder="e.g. M-04">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-bold">Admission Date *</label>
+          <input type="date" name="admission_date" class="form-control border-2" value="{{ today_iso }}" required>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Admission Fee (Rs.)</label>
+          <input type="number" step="0.01" name="admission_fee" class="form-control border-2" value="200">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Monthly Fee (Rs.)</label>
+          <input type="number" step="0.01" name="monthly_fee" class="form-control border-2" value="500">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Monthly Due Day (1-28)</label>
+          <input type="number" min="1" max="28" name="fee_due_day" class="form-control border-2" value="10">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Initial Student Password</label>
+          <input type="text" name="initial_password" class="form-control border-2" value="stu123"
+                 placeholder="Student can change later">
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" id="markPaid" name="mark_first_month_paid" checked>
+            <label class="form-check-label fw-bold" for="markPaid">
+              First Month Tuition Fee Paid at Admission (Allows immediate student login)
+            </label>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Payment Mode</label>
+          <select name="payment_mode" class="form-select border-2">
+            <option value="Cash">Cash</option>
+            <option value="UPI / GPay">UPI / GPay</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Remarks</label>
+          <input type="text" name="notes" class="form-control border-2" placeholder="Optional notes">
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+        <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary fw-bold">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-lg fw-bold px-4">
+          <i class="bi bi-check2-square me-1"></i> Save Admission &amp; Generate ID ({{ next_code }})
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

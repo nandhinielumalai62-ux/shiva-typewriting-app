@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Students Directory — {{ institute_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="bold-card">
+    <div class="bold-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span><i class="bi bi-people-fill me-2"></i> Admitted Students Directory</span>
+      <a href="{{ url_for('admin_admission') }}" class="btn btn-warning btn-sm fw-bold">
+        <i class="bi bi-person-plus-fill me-1"></i> New Admission
+      </a>
+    </div>
+    <div class="card-body p-4">
+      <form method="GET" class="row g-2 mb-4">
+        <div class="col-md-5">
+          <input type="text" name="q" value="{{ q }}" class="form-control border-2"
+                 placeholder="Search by Student ID (SCI001), Name, or Mobile...">
+        </div>
+        <div class="col-md-4">
+          <select name="category" class="form-select border-2">
+            <option value="">All 6 Categories</option>
+            {% for cat in course_categories %}
+              <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button type="submit" class="btn btn-dark fw-bold flex-grow-1">Filter</button>
+          <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary fw-bold">Reset</a>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Course Category</th>
+              <th>Batch</th>
+              <th>Mobile</th>
+              <th>Fee Access</th>
+              <th style="width: 240px;">Actions (Edit / Delete Wrong Entry)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+              <tr>
+                <td><span class="badge bg-primary fs-6">{{ s.student_code }}</span></td>
+                <td class="fw-bold">{{ s.full_name }}</td>
+                <td>{{ s.course_category }}</td>
+                <td>{{ s.batch_timing }}</td>
+                <td>{{ s.phone }}</td>
+                <td>
+                  {% if s.fee_blocked %}
+                    <span class="badge bg-danger">Blocked (Due Rs. {{ "%.0f"|format(s.total_due) }})</span>
+                  {% elif s.total_due > 0 %}
+                    <span class="badge bg-warning text-dark">Pending Rs. {{ "%.0f"|format(s.total_due) }}</span>
+                  {% else %}
+                    <span class="badge bg-success">Clear</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a href="{{ url_for('admin_student_detail', student_id=s.id) }}" class="btn btn-sm btn-outline-dark fw-bold">View</a>
+                    <a href="{{ url_for('admin_student_edit', student_id=s.id) }}" class="btn btn-sm btn-outline-primary fw-bold">Edit</a>
+                    <form method="POST" action="{{ url_for('admin_student_delete', student_id=s.id) }}"
+                          onsubmit="return confirm('Delete admission record {{ s.student_code }} ({{ s.full_name }})? Use this if admission details were entered wrong.');">
+                      <button type="submit" class="btn btn-sm btn-danger fw-bold">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr><td colspan="7" class="text-center text-muted py-4">No student records match your filter.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

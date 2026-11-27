@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Manage Practice Lessons — {{ institute_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="bold-card">
+        <div class="bold-card-header">
+          <i class="bi bi-journal-text me-2"></i> Practice 1, 2, 3... Passages ({{ selected_category }})
+        </div>
+        <div class="card-body p-4">
+          <form method="GET" class="mb-3">
+            <label class="form-label fw-bold">Switch Category</label>
+            <select name="category" class="form-select border-2 fw-bold" onchange="this.form.submit()">
+              {% for cat in course_categories %}
+                <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </form>
+
+          {% for p in passages %}
+            <div class="border border-2 rounded p-3 mb-3 bg-light">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                  <span class="badge bg-primary me-2">Practice {{ p.practice_number }}</span>
+                  <strong>{{ p.title }}</strong>
+                </div>
+                <form method="POST" action="{{ url_for('admin_passage_delete', passage_id=p.id) }}"
+                      onsubmit="return confirm('Delete Practice {{ p.practice_number }}?');">
+                  <input type="hidden" name="category" value="{{ selected_category }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger fw-bold">Delete</button>
+                </form>
+              </div>
+              <p class="mb-1 text-dark" style="white-space: pre-wrap;">{{ p.passage_text }}</p>
+              <div class="small text-muted">Mode: {{ p.content_type }} | Target: {{ p.target_wpm }} WPM / {{ p.target_strokes }} strokes | Duration: 10 Minutes</div>
+            </div>
+          {% else %}
+            <p class="text-muted">No lessons found for this category yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="bold-card">
+        <div class="bold-card-header">
+          <i class="bi bi-plus-circle-fill me-2"></i> Add / Update Practice Session
+        </div>
+        <div class="card-body p-4">
+          <form method="POST">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Category</label>
+              <select name="category" class="form-select border-2" required>
+                {% for cat in course_categories %}
+                  <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-4">
+                <label class="form-label fw-bold">Practice No.</label>
+                <input type="number" min="1" name="practice_number" class="form-control border-2" value="{{ next_practice_num }}" required>
+              </div>
+              <div class="col-8">
+                <label class="form-label fw-bold">Session Title</label>
+                <input type="text" name="title" class="form-control border-2" value="Practice {{ next_practice_num }}" required>
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-4">
+                <label class="form-label fw-bold">Type</label>
+                <select name="content_type" class="form-select border-2">
+                  <option value="word">Word / Drill</option>
+                  <option value="paragraph" selected>Paragraph</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label class="form-label fw-bold">Target WPM</label>
+                <input type="number" name="target_wpm" class="form-control border-2" value="30">
+              </div>
+              <div class="col-4">
+                <label class="form-label fw-bold">Target Strokes</label>
+                <input type="number" name="target_strokes" class="form-control border-2" value="1200">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Passage / Drill Text (Separate paragraphs by blank line)</label>
+              <textarea name="passage_text" class="form-control border-2" rows="6" required
+                        placeholder="Paste Tamil or English passage text here..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold">Save Practice Lesson</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

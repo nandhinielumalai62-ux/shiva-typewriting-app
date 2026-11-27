@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ institute_name }}{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20261126b') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav class="navbar navbar-expand-lg navbar-dark sci-navbar no-print">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}">
+      <i class="bi bi-keyboard-fill text-warning fs-4"></i>
+      <span>{{ institute_name }}</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% if session.get('user_type') == 'staff' %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">
+              <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'admin_admission' %}active{% endif %}" href="{{ url_for('admin_admission') }}">
+              <i class="bi bi-person-plus-fill me-1"></i> Admission Form
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint in ['admin_students', 'admin_student_detail', 'admin_student_edit'] %}active{% endif %}" href="{{ url_for('admin_students') }}">
+              <i class="bi bi-people-fill me-1"></i> Students
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'admin_attendance' %}active{% endif %}" href="{{ url_for('admin_attendance') }}">
+              <i class="bi bi-calendar-check-fill me-1"></i> Attendance
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'admin_fees' %}active{% endif %}" href="{{ url_for('admin_fees') }}">
+              <i class="bi bi-cash-coin me-1"></i> Monthly Fees
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'admin_passages' %}active{% endif %}" href="{{ url_for('admin_passages') }}">
+              <i class="bi bi-journal-text me-1"></i> Practice Lessons
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'admin_account' %}active{% endif %}" href="{{ url_for('admin_account') }}">
+              <i class="bi bi-shield-lock-fill me-1"></i> Admin ID/Password
+            </a>
+          </li>
+        {% elif session.get('user_type') == 'student' %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'student_dashboard' %}active{% endif %}" href="{{ url_for('student_dashboard') }}">
+              <i class="bi bi-house-door-fill me-1"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'student_practice' %}active{% endif %}" href="{{ url_for('student_practice') }}">
+              <i class="bi bi-keyboard me-1"></i> Practice Arena (10 Min)
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'student_attendance' %}active{% endif %}" href="{{ url_for('student_attendance') }}">
+              <i class="bi bi-calendar2-check me-1"></i> My Attendance
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'student_fees' %}active{% endif %}" href="{{ url_for('student_fees') }}">
+              <i class="bi bi-receipt me-1"></i> Fee Intimation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'student_change_password' %}active{% endif %}" href="{{ url_for('student_change_password') }}">
+              <i class="bi bi-key-fill me-1"></i> Change Password
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+
+      {% if session.get('user_id') %}
+        <div class="d-flex align-items-center gap-3 text-white">
+          <span class="badge bg-warning text-dark fw-bold px-3 py-2">
+            {% if session.get('user_type') == 'staff' %}
+              STAFF: {{ session.get('username') }}
+            {% else %}
+              ID: {{ session.get('student_code') }}
+            {% endif %}
+          </span>
+          <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm fw-bold">
+            <i class="bi bi-box-arrow-right me-1"></i> Logout
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<main class="container-fluid px-3 px-md-4 py-4 flex-grow-1">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="no-print mb-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show fw-semibold border-2 shadow-sm" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="bg-dark text-light py-3 mt-auto no-print border-top border-warning border-3">
+  <div class="container-fluid px-4 d-flex flex-wrap justify-content-between align-items-center">
+    <span class="fw-bold">{{ institute_name }} — {{ institute_subtitle }}</span>
+    <span class="small text-secondary">English &amp; Tamil Typewriting | Junior Basic, Junior Speed &amp; Senior Speed (10-Min Sessions)</span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js', v='20261126b') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

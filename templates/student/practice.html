@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Practice Arena (10 Min) — {{ institute_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="practice-bold-shell">
+    <!-- Top Controls Row -->
+    <div class="row g-3 align-items-end mb-3">
+      <div class="col-md-4">
+        <label for="categorySelect" class="form-label fw-bold text-warning">Category (All 6 Levels)</label>
+        <select id="categorySelect" class="form-select form-select-lg fw-bold">
+          {% for cat in course_categories %}
+            <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="practiceSelect" class="form-label fw-bold text-warning">Session (Practice 1, 2, ...)</label>
+        <select id="practiceSelect" class="form-select form-select-lg fw-bold" data-initial-practice="{{ selected_practice }}">
+          <option value="1">Practice 1</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="modeSelect" class="form-label fw-bold text-warning">Drill Mode</label>
+        <select id="modeSelect" class="form-select form-select-lg fw-bold">
+          <option value="all" selected>All</option>
+          <option value="word">Word / Drill</option>
+          <option value="paragraph">Paragraph</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button type="button" class="btn btn-warning btn-lg fw-bold" onclick="nextPracticeSession()">
+          <i class="bi bi-skip-forward-fill me-1"></i> Next Practice
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Banner & Live Metrics -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 px-2">
+      <h5 id="activePracticeTitle" class="fw-bold text-white mb-1 mb-md-0">{{ selected_category }} — Practice {{ selected_practice }}</h5>
+      <span class="badge bg-success fs-6">
+        <i class="bi bi-check2-circle me-1"></i> Attendance Present ({{ today_att.login_time if today_att else 'Auto' }})
+      </span>
+    </div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-6 col-md-2">
+        <div class="practice-stat-pill">
+          <div class="stat-lbl">Time Left (10 Min)</div>
+          <div id="timerDisplay" class="stat-num text-warning">10:00</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="practice-stat-pill">
+          <div class="stat-lbl">Speed (WPM)</div>
+          <div id="wpmDisplay" class="stat-num">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="practice-stat-pill">
+          <div class="stat-lbl">Accuracy</div>
+          <div id="accDisplay" class="stat-num text-success">100%</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="practice-stat-pill">
+          <div class="stat-lbl">Errors</div>
+          <div id="errDisplay" class="stat-num text-danger">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="practice-stat-pill">
+          <div class="stat-lbl">Strokes</div>
+          <div id="strokesDisplay" class="stat-num">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="practice-stat-pill">
+          <div class="stat-lbl">Progress</div>
+          <div id="progressText" class="stat-num">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress mb-3" style="height: 12px;">
+      <div id="progressBar" class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: 0%;"></div>
+    </div>
+
+    <!-- Sample Text Passage (explicit 20px font size for practice words) -->
+    <div class="mb-3">
+      <label class="form-label fw-bold text-info">Sample Practice Words / Passage (20px Clear Display):</label>
+      <div id="sampleText" class="sample-box">Loading practice lesson...</div>
+    </div>
+
+    <!-- Typing Box -->
+    <div class="mb-3">
+      <label for="typingInput" class="form-label fw-bold text-info">Type Here (Timer starts automatically on first keystroke):</label>
+      <textarea id="typingInput" class="form-control" rows="3" spellcheck="false" autocomplete="off"
+                placeholder="Start typing the passage shown above..."></textarea>
+    </div>
+
+    <!-- On-Screen Dynamic Keyboard (Switches automatically between English & Tamil) -->
+    <div id="keyboardPanel" class="keyboard-shell mb-3">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <div class="d-flex align-items-center gap-2">
+          <span id="keyboardLangBadge" class="badge bg-warning text-dark fw-bold px-3 py-2">
+            <i class="bi bi-keyboard me-1"></i> ENGLISH KEYBOARD
+          </span>
+          <span class="small text-light opacity-75">Amber key shows next key to press</span>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <div id="tamilControlsGroup" class="d-none d-flex align-items-center gap-2">
+            <select id="tamilLayoutSelect" class="form-select form-select-sm fw-bold" style="width: auto;">
+              <option value="typewriter" selected>Tamil Typewriter (தமிழ் தட்டச்சு)</option>
+              <option value="tamil99">Tamil99 (தமிழ்99)</option>
+            </select>
+            <div class="form-check form-switch text-white mb-0">
+              <input class="form-check-input" type="checkbox" id="tamilAutoInputToggle" checked>
+              <label class="form-check-label small fw-bold" for="tamilAutoInputToggle">
+                Type Tamil via English Keys
+              </label>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-light fw-bold" onclick="toggleKeyboardVisibility(this)">
+            Hide Keyboard
+          </button>
+        </div>
+      </div>
+      <div id="virtualKeyboard"></div>
+    </div>
+
+    <!-- Bottom Controls & Feedback -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div>
+        <div id="weakCharsText" class="fw-semibold text-warning">No mistyped characters yet.</div>
+        <div id="saveStatusText" class="small text-light opacity-75">10:00 countdown starts automatically when you type the first key.</div>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-light fw-bold" onclick="applySelectedPractice()">
+          <i class="bi bi-arrow-counterclockwise me-1"></i> Restart 10:00
+        </button>
+        <button type="button" class="btn btn-success btn-lg fw-bold" onclick="finishSession(false)">
+          <i class="bi bi-check-circle-fill me-1"></i> Finish &amp; Save Session
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/practice.js', v='20261126b') }}"></script>
+{% endblock %}

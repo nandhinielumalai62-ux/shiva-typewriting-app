@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Login — {{ institute_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+  <div class="row g-4 align-items-stretch">
+    <div class="col-lg-6">
+      <div class="login-hero h-100 d-flex flex-column justify-content-between">
+        <div>
+          <span class="badge bg-warning text-dark fw-bold mb-3 px-3 py-2">
+            ENGLISH &amp; TAMIL TYPEWRITING INSTITUTE
+          </span>
+          <h1 class="fw-bold display-6 mb-3">{{ institute_name }}</h1>
+          <p class="text-light opacity-90">
+            Dedicated practice portal for Junior Basic, Junior Speed, and Senior Speed candidates.
+            Every student receives an auto-generated sequential Student ID upon admission, automatic
+            daily attendance on login, and timed 10-minute practice sessions across Practice 1, 2, 3 and more.
+          </p>
+        </div>
+
+        <div class="row g-3 mt-2">
+          <div class="col-sm-6">
+            <div class="p-3 rounded bg-dark bg-opacity-50 border border-warning">
+              <div class="fw-bold text-warning mb-1"><i class="bi bi-calendar-check me-1"></i> Auto Attendance</div>
+              <p class="mb-0 text-light opacity-75">Marked automatically when students sign in for practice.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 rounded bg-dark bg-opacity-50 border border-info">
+              <div class="fw-bold text-info mb-1"><i class="bi bi-shield-exclamation me-1"></i> Fee Intimation Lock</div>
+              <p class="mb-0 text-light opacity-75">Overdue monthly tuition locks login until cleared at office.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card login-card h-100">
+        <div class="bold-card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-box-arrow-in-right me-2"></i> Portal Sign In</span>
+          <span class="badge bg-warning text-dark">Separate Student &amp; Staff IDs</span>
+        </div>
+        <div class="card-body p-4">
+
+          {% if fee_block_info %}
+          <div class="alert alert-danger border-2 border-danger shadow-sm mb-4">
+            <h5 class="fw-bold mb-2"><i class="bi bi-lock-fill me-1"></i> Practice Login Blocked — Monthly Fee Delayed</h5>
+            <p class="mb-2">
+              Student <strong>{{ fee_block_info.student.full_name }} ({{ fee_block_info.student.student_code }})</strong>
+              has overdue monthly tuition fee payment(s). Access to typing practice is temporarily locked.
+            </p>
+            <ul class="mb-2">
+              {% for f in fee_block_info.overdue_fees %}
+                <li><strong>{{ f.billing_month }}</strong> — Rs. {{ "%.2f"|format(f.amount) }} (Due Date: {{ f.due_date }})</li>
+              {% endfor %}
+            </ul>
+            <p class="mb-0 fw-bold">Total Pending: Rs. {{ "%.2f"|format(fee_block_info.total_due) }}. Please pay at the institute office to restore access.</p>
+          </div>
+          {% endif %}
+
+          <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded border" id="loginTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link fw-bold {% if active_role != 'staff' %}active{% endif %}"
+                      id="student-tab" data-bs-toggle="pill" data-bs-target="#studentPane" type="button">
+                <i class="bi bi-mortarboard-fill me-1"></i> Student Login
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link fw-bold {% if active_role == 'staff' %}active{% endif %}"
+                      id="staff-tab" data-bs-toggle="pill" data-bs-target="#staffPane" type="button">
+                <i class="bi bi-person-badge-fill me-1"></i> Staff / Admin Login
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <!-- Student Login -->
+            <div class="tab-pane fade {% if active_role != 'staff' %}show active{% endif %}" id="studentPane">
+              <form method="POST" action="{{ url_for('login') }}">
+                <input type="hidden" name="login_type" value="student">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Student ID (Sequential ID)</label>
+                  <input type="text" name="login_id" class="form-control form-control-lg border-2"
+                         placeholder="e.g. SCI001" required autocomplete="username">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Password</label>
+                  <div class="input-group input-group-lg">
+                    <input type="password" name="password" id="stuLoginPw" class="form-control border-2"
+                           placeholder="Enter student password" required autocomplete="current-password">
+                    <button class="btn btn-outline-secondary fw-bold" type="button"
+                            onclick="togglePasswordField('stuLoginPw', this)">Show</button>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mt-2">
+                  <i class="bi bi-keyboard-fill me-1"></i> Login &amp; Mark Attendance
+                </button>
+              </form>
+              <p class="text-muted mt-3 mb-0">
+                Note: Your daily attendance is marked automatically upon login. Students can change their password anytime inside the portal.
+              </p>
+            </div>
+
+            <!-- Staff / Admin Login -->
+            <div class="tab-pane fade {% if active_role == 'staff' %}show active{% endif %}" id="staffPane">
+              <form method="POST" action="{{ url_for('login') }}">
+                <input type="hidden" name="login_type" value="staff">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Staff / Admin Login ID</label>
+                  <input type="text" name="login_id" class="form-control form-control-lg border-2"
+                         placeholder="e.g. admin" required autocomplete="username">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Password</label>
+                  <div class="input-group input-group-lg">
+                    <input type="password" name="password" id="staffLoginPw" class="form-control border-2"
+                           placeholder="Enter staff password" required autocomplete="current-password">
+                    <button class="btn btn-outline-secondary fw-bold" type="button"
+                            onclick="togglePasswordField('staffLoginPw', this)">Show</button>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-dark btn-lg w-100 fw-bold mt-2">
+                  <i class="bi bi-shield-check me-1"></i> Staff / Admin Sign In
+                </button>
+              </form>
+              <p class="text-muted mt-3 mb-0">
+                Default Admin Login ID: <code>admin</code> | Password: <code>admin123</code> (Admin can change both Login ID and Password inside Account Settings).
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
